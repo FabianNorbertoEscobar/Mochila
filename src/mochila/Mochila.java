@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Mochila extends EjercicioOIA {
-	
+
 	private ArrayList<Articulo> articulos;
 	private int[][] satisfaccionAcumulada;
 	private int pesoSoportado;
 	private int maximaSatisfaccion;
-	
+
 	public Mochila(File entrada, File salida) {
 		super(entrada, salida);
 		this.articulos = new ArrayList<Articulo>();
@@ -45,11 +45,46 @@ public class Mochila extends EjercicioOIA {
 	@Override
 	public void resolver() {
 		this.acumularSatisfacciones();
+		this.mostrarSatisfacciones();
+		this.obtenerSatisfaccionMaxima();
 		this.grabarSalida();
 	}
 
+	private void mostrarSatisfacciones() {
+		for (int i = 0; i < this.articulos.size(); i++) {
+			for (int j = 0; j < this.pesoSoportado; j++) {
+				System.out.print(this.satisfaccionAcumulada[i][j] + " ");
+			}
+			System.out.println();
+		}
+	}
+
 	private void acumularSatisfacciones() {
-		
+		int anterior, siguiente;
+		for (int i = 0; i < this.articulos.size(); i++) {
+			for (int j = 1; j < this.pesoSoportado; j++) {
+				if (i > 0 && j - this.articulos.get(i).getPeso() > 0) {
+					anterior = this.satisfaccionAcumulada[i - 1][j];
+					siguiente = this.satisfaccionAcumulada[i - 1][j - this.articulos.get(i).getPeso()]
+							+ this.articulos.get(i).getSatisfaccion();
+					this.satisfaccionAcumulada[i][j] = this.maximo(anterior, siguiente);
+				} else {
+					this.satisfaccionAcumulada[i][j] = this.satisfaccionAcumulada[i][j - 1];
+				}
+			}
+		}
+	}
+
+	private int maximo(int a, int b) {
+		if (a > b) {
+			return a;
+		} else {
+			return b;
+		}
+	}
+
+	private void obtenerSatisfaccionMaxima() {
+		this.maximaSatisfaccion = this.satisfaccionAcumulada[this.articulos.size() - 1][this.pesoSoportado - 1];
 	}
 
 	private void grabarSalida() {
