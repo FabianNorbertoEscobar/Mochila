@@ -20,7 +20,7 @@ public class Mochila extends EjercicioOIA {
 		super(entrada, salida);
 		this.articulos = new ArrayList<Articulo>();
 		this.levantarEntrada();
-		this.satisfaccionAcumulada = new int[this.articulos.size()][this.pesoSoportado];
+		this.satisfaccionAcumulada = new int[this.articulos.size()][this.pesoSoportado + 1];
 	}
 
 	private void levantarEntrada() {
@@ -45,46 +45,46 @@ public class Mochila extends EjercicioOIA {
 	@Override
 	public void resolver() {
 		this.acumularSatisfacciones();
-		this.mostrarSatisfacciones();
+		//this.mostrarSatisfacciones();
 		this.obtenerSatisfaccionMaxima();
 		this.grabarSalida();
 	}
 
+	/*
 	private void mostrarSatisfacciones() {
 		for (int i = 0; i < this.articulos.size(); i++) {
-			for (int j = 0; j < this.pesoSoportado; j++) {
+			for (int j = 0; j <= this.pesoSoportado; j++) {
 				System.out.print(this.satisfaccionAcumulada[i][j] + " ");
 			}
 			System.out.println();
 		}
 	}
+	*/
 
 	private void acumularSatisfacciones() {
-		int anterior, siguiente;
-		for (int i = 0; i < this.articulos.size(); i++) {
-			for (int j = 1; j < this.pesoSoportado; j++) {
-				if (i > 0 && j - this.articulos.get(i).getPeso() > 0) {
-					anterior = this.satisfaccionAcumulada[i - 1][j];
-					siguiente = this.satisfaccionAcumulada[i - 1][j - this.articulos.get(i).getPeso()]
-							+ this.articulos.get(i).getSatisfaccion();
-					this.satisfaccionAcumulada[i][j] = this.maximo(anterior, siguiente);
+		int satisfaccionSinArticulo, satisfaccionConArticulo;
+		for (int j = this.articulos.get(0).getPeso(); j <= this.pesoSoportado; j++) {
+			this.satisfaccionAcumulada[0][j] = this.articulos.get(0).getSatisfaccion();
+		}
+		for (int i = 1; i < this.articulos.size(); i++) {
+			for (int j = 1; j <= this.pesoSoportado; j++) {
+				satisfaccionSinArticulo = this.satisfaccionAcumulada[i - 1][j];
+				if (j < this.articulos.get(i).getPeso()) {
+					this.satisfaccionAcumulada[i][j] = satisfaccionSinArticulo;
 				} else {
-					this.satisfaccionAcumulada[i][j] = this.satisfaccionAcumulada[i][j - 1];
+					satisfaccionConArticulo = this.satisfaccionAcumulada[i - 1][j - this.articulos.get(i).getPeso()] + this.articulos.get(i).getSatisfaccion();
+					if (satisfaccionSinArticulo >= satisfaccionConArticulo) {
+						this.satisfaccionAcumulada[i][j] = satisfaccionSinArticulo;
+					} else {
+						this.satisfaccionAcumulada[i][j] = satisfaccionConArticulo;
+					}
 				}
 			}
 		}
 	}
 
-	private int maximo(int a, int b) {
-		if (a > b) {
-			return a;
-		} else {
-			return b;
-		}
-	}
-
 	private void obtenerSatisfaccionMaxima() {
-		this.maximaSatisfaccion = this.satisfaccionAcumulada[this.articulos.size() - 1][this.pesoSoportado - 1];
+		this.maximaSatisfaccion = this.satisfaccionAcumulada[this.articulos.size() - 1][this.pesoSoportado];
 	}
 
 	private void grabarSalida() {
